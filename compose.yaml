@@ -53,7 +53,7 @@ services:
             retries: 3
             timeout: 5s
     redis:
-        image: 'redis:alpine'
+        image: 'redis:8.10.2-alpine'
         ports:
             - '${FORWARD_REDIS_PORT:-6379}:6379'
         volumes:
@@ -68,7 +68,7 @@ services:
             retries: 3
             timeout: 5s
     meilisearch:
-        image: 'getmeili/meilisearch:latest'
+        image: 'getmeili/meilisearch:v1.56.1'
         ports:
             - '${FORWARD_MEILISEARCH_PORT:-7700}:7700'
         environment:
@@ -88,7 +88,7 @@ services:
             retries: 3
             timeout: 5s
     rustfs:
-        image: 'rustfs/rustfs:latest'
+        image: 'rustfs/rustfs:1.0.4'
         ports:
             - '${FORWARD_RUSTFS_PORT:-9000}:9000'
             - '${FORWARD_RUSTFS_CONSOLE_PORT:-9001}:9001'
@@ -117,8 +117,25 @@ services:
             timeout: 10s
             retries: 3
             start_period: 40s
+    rustfs-init:
+        image: 'amazon/aws-cli:2.39.3'
+        restart: 'no'
+        depends_on:
+            rustfs:
+                condition: service_healthy
+        environment:
+            AWS_ACCESS_KEY_ID: sail
+            AWS_SECRET_ACCESS_KEY: password
+            AWS_DEFAULT_REGION: us-east-1
+            AWS_ENDPOINT_URL: 'http://rustfs:9000'
+            BUCKET: '${AWS_BUCKET:-autohub}'
+        entrypoint: [ 'sh', '-c' ]
+        command:
+            - 'aws s3api head-bucket --bucket "$$BUCKET" 2>/dev/null || aws s3api create-bucket --bucket "$$BUCKET"'
+        networks:
+            - sail
     mailpit:
-        image: 'axllent/mailpit:latest'
+        image: 'axllent/mailpit:v1.31.1'
         ports:
             - '${FORWARD_MAILPIT_PORT:-1025}:1025'
             - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
