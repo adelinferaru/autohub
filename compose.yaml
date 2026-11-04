@@ -22,11 +22,18 @@ services:
         networks:
             - sail
         depends_on:
-            - pgsql
-            - redis
-            - meilisearch
-            - rustfs
-            - mailpit
+            pgsql:
+                condition: service_started
+            redis:
+                condition: service_started
+            meilisearch:
+                condition: service_started
+            rustfs:
+                condition: service_started
+            rustfs-init:
+                condition: service_completed_successfully
+            mailpit:
+                condition: service_started
     pgsql:
         image: 'pgvector/pgvector:0.8.2-pg18'
         ports:
