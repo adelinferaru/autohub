@@ -57,6 +57,17 @@
             "@php artisan config:clear --ansi @no_additional_args",
             "@php artisan test"
         ],
+        "lint": "pint --test",
+        "lint:fix": "pint",
+        "analyse": "phpstan analyse --memory-limit=1G",
+        "refactor": "rector process --dry-run",
+        "refactor:fix": "rector process",
+        "check": [
+            "@lint",
+            "@analyse",
+            "@refactor",
+            "@test"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
