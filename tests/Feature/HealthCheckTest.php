@@ -4,6 +4,6 @@ declare(strict_types=1);
 
 use function Pest\Laravel\get;
 
-test('the health endpoint responds', function () {
+test('the health endpoint responds', function (): void {
     get('/up')->assertOk();
 });
